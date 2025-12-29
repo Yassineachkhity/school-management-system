@@ -2,10 +2,6 @@ package org.openeye.departementservice.dao.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -16,8 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.openeye.departementservice.enums.DepartementStatus;
-
 import java.time.LocalDateTime;
 
 @Builder
@@ -31,8 +25,8 @@ import java.time.LocalDateTime;
 public class Departement {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(nullable = false, length = 36)
+    private String departementId;
 
     @Column(unique = true, nullable = false, length = 20)
     private String departementCode;
@@ -43,11 +37,8 @@ public class Departement {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 20)
+    @Column(length = 36)
     private String headTeacherId;
-
-    @Enumerated(EnumType.STRING)
-    private DepartementStatus status;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

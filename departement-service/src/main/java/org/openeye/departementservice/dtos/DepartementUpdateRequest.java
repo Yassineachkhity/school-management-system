@@ -1,6 +1,5 @@
 package org.openeye.departementservice.dtos;
 
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,9 +15,6 @@ public class DepartementUpdateRequest {
 
     private String description;
 
-    @Size(max = 20, message = "Head teacher ID must not exceed 20 characters")
+    @Size(max = 36, message = "Head teacher ID must not exceed 36 characters")
     private String headTeacherId;
-
-    @Pattern(regexp = "ACTIVE|INACTIVE", message = "Status must be ACTIVE, INACTIVE")
-    private String status;
 }

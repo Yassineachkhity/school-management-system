@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.openeye.departementservice.enums.DepartementStatus;
 
 @Data
 @Builder
@@ -12,10 +11,9 @@ import org.openeye.departementservice.enums.DepartementStatus;
 @AllArgsConstructor
 public class DepartementDTO {
 
-    private Long id;
+    private String departementId;
     private String departementCode;
     private String name;
     private String description;
     private String headTeacherId;
-    private DepartementStatus status;
 }

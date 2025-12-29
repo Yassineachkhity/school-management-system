@@ -1,6 +1,8 @@
 package org.openeye.departementservice.service;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.openeye.departementservice.clients.TeacherClient;
 import org.openeye.departementservice.dao.entities.Departement;
 import org.openeye.departementservice.dao.repositories.DepartementRepository;
 import org.openeye.departementservice.dtos.DepartementCreateRequest;
@@ -8,12 +10,11 @@ import org.openeye.departementservice.dtos.DepartementDTO;
 import org.openeye.departementservice.dtos.DepartementUpdateRequest;
 import org.openeye.departementservice.exceptions.DepartementNotFoundException;
 import org.openeye.departementservice.exceptions.DuplicateDepartementException;
+import org.openeye.departementservice.exceptions.InvalidTeacherException;
 import org.openeye.departementservice.mappers.DepartementMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,11 +22,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class DepartementManager implements DepartementService {
-    private static final int CODE_GENERATION_ATTEMPTS = 5;
 
     private final DepartementRepository departementRepository;
     private final DepartementMapper departementMapper;
-    private final SecureRandom random = new SecureRandom();
+    private final TeacherClient teacherClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -37,6 +37,12 @@ public class DepartementManager implements DepartementService {
 
     @Override
     @Transactional(readOnly = true)
+    public DepartementDTO getDepartementById(String departementId) {
+        return departementMapper.toDTO(findDepartementById(departementId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public DepartementDTO getDepartementByCode(String departementCode) {
         return departementMapper.toDTO(findDepartementByCode(departementCode));
     }
@@ -44,31 +50,46 @@ public class DepartementManager implements DepartementService {
     @Override
     public DepartementDTO createDepartement(DepartementCreateRequest request) {
         String departementCode = normalizeDepartementCode(request.getDepartementCode());
-        if (departementCode != null && departementRepository.existsByDepartementCode(departementCode)) {
+        if (departementRepository.existsByDepartementCode(departementCode)) {
             throw new DuplicateDepartementException("Departement code already in use: " + departementCode);
         }
-        if (departementCode == null) {
-            departementCode = generateDepartementCode();
+
+        String headTeacherId = null;
+        if (request.getHeadTeacherId() != null) {
+            headTeacherId = normalize(request.getHeadTeacherId());
+            validateTeacherExists(headTeacherId);
         }
 
         Departement departement = departementMapper.toEntity(request);
+        departement.setDepartementId(UUID.randomUUID().toString());
         departement.setDepartementCode(departementCode);
+        departement.setHeadTeacherId(headTeacherId);
 
         Departement saved = departementRepository.save(departement);
         return departementMapper.toDTO(saved);
     }
 
     @Override
-    public DepartementDTO updateDepartement(String departementCode, DepartementUpdateRequest request) {
-        Departement departement = findDepartementByCode(departementCode);
+    public DepartementDTO updateDepartement(String departementId, DepartementUpdateRequest request) {
+        Departement departement = findDepartementById(departementId);
+
+        String headTeacherId = null;
+        if (request.getHeadTeacherId() != null) {
+            headTeacherId = normalize(request.getHeadTeacherId());
+            validateTeacherExists(headTeacherId);
+        }
+
         departementMapper.updateEntityFromDTO(departement, request);
+        if (headTeacherId != null) {
+            departement.setHeadTeacherId(headTeacherId);
+        }
         Departement saved = departementRepository.save(departement);
         return departementMapper.toDTO(saved);
     }
 
     @Override
-    public void deleteDepartement(String departementCode) {
-        Departement departement = findDepartementByCode(departementCode);
+    public void deleteDepartement(String departementId) {
+        Departement departement = findDepartementById(departementId);
         departementRepository.delete(departement);
     }
 
@@ -81,18 +102,23 @@ public class DepartementManager implements DepartementService {
                 .toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<DepartementDTO> getActiveDepartements() {
-        return departementRepository.findActiveDepartements().stream()
-                .map(departementMapper::toDTO)
-                .toList();
+    private Departement findDepartementById(String departementId) {
+        String normalizedId = normalize(departementId);
+        if (normalizedId == null) {
+            throw new DepartementNotFoundException("Departement not found: " + departementId);
+        }
+        Departement departement = departementRepository.findByDepartementId(normalizedId);
+        if (departement == null) {
+            throw new DepartementNotFoundException("Departement not found: " + departementId);
+        }
+        return departement;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public long countActiveDepartements() {
-        return departementRepository.countActiveDepartements();
+    private String normalizeDepartementCode(String departementCode) {
+        if (departementCode == null || departementCode.isBlank()) {
+            return null;
+        }
+        return departementCode.trim().toUpperCase();
     }
 
     private Departement findDepartementByCode(String departementCode) {
@@ -107,28 +133,21 @@ public class DepartementManager implements DepartementService {
         return departement;
     }
 
-    private String normalizeDepartementCode(String departementCode) {
-        if (departementCode == null || departementCode.isBlank()) {
-            return null;
+    private void validateTeacherExists(String teacherId) {
+        if (teacherId == null || teacherId.isBlank()) {
+            throw new InvalidTeacherException("Head teacher is required");
         }
-        return departementCode.trim().toUpperCase();
+        try {
+            teacherClient.getTeacherById(teacherId);
+        } catch (FeignException.NotFound ex) {
+            throw new InvalidTeacherException("Teacher not found: " + teacherId);
+        }
     }
 
-    private String generateDepartementCode() {
-        String year = String.valueOf(LocalDate.now().getYear());
-        for (int attempt = 0; attempt < CODE_GENERATION_ATTEMPTS; attempt++) {
-            String candidate = "DEP" + year + String.format("%04d", random.nextInt(10_000));
-            if (!departementRepository.existsByDepartementCode(candidate)) {
-                return candidate;
-            }
+    private String normalize(String value) {
+        if (value == null) {
+            return null;
         }
-
-        String candidate;
-        do {
-            candidate = "DEP" + UUID.randomUUID().toString().replace("-", "")
-                    .substring(0, 8)
-                    .toUpperCase();
-        } while (departementRepository.existsByDepartementCode(candidate));
-        return candidate;
+        return value.trim();
     }
 }

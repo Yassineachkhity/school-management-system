@@ -4,7 +4,6 @@ import org.openeye.departementservice.dao.entities.Departement;
 import org.openeye.departementservice.dtos.DepartementCreateRequest;
 import org.openeye.departementservice.dtos.DepartementDTO;
 import org.openeye.departementservice.dtos.DepartementUpdateRequest;
-import org.openeye.departementservice.enums.DepartementStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,12 +15,11 @@ public class DepartementMapper {
         }
 
         return DepartementDTO.builder()
-                .id(departement.getId())
+                .departementId(departement.getDepartementId())
                 .departementCode(departement.getDepartementCode())
                 .name(departement.getName())
                 .description(departement.getDescription())
                 .headTeacherId(departement.getHeadTeacherId())
-                .status(departement.getStatus())
                 .build();
     }
 
@@ -34,7 +32,6 @@ public class DepartementMapper {
                 .name(request.getName())
                 .description(request.getDescription())
                 .headTeacherId(request.getHeadTeacherId())
-                .status(DepartementStatus.ACTIVE)
                 .build();
     }
 
@@ -52,15 +49,5 @@ public class DepartementMapper {
         if (request.getHeadTeacherId() != null) {
             departement.setHeadTeacherId(request.getHeadTeacherId());
         }
-        if (request.getStatus() != null) {
-            departement.setStatus(parseStatus(request.getStatus()));
-        }
-    }
-
-    private DepartementStatus parseStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return null;
-        }
-        return DepartementStatus.valueOf(status.trim().toUpperCase());
     }
 }

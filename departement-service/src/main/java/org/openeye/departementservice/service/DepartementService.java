@@ -9,17 +9,15 @@ import java.util.List;
 public interface DepartementService {
     List<DepartementDTO> getAllDepartements();
 
+    DepartementDTO getDepartementById(String departementId);
+
     DepartementDTO getDepartementByCode(String departementCode);
 
     DepartementDTO createDepartement(DepartementCreateRequest request);
 
-    DepartementDTO updateDepartement(String departementCode, DepartementUpdateRequest request);
+    DepartementDTO updateDepartement(String departementId, DepartementUpdateRequest request);
 
-    void deleteDepartement(String departementCode);
+    void deleteDepartement(String departementId);
 
     List<DepartementDTO> searchDepartements(String keyword);
-
-    List<DepartementDTO> getActiveDepartements();
-
-    long countActiveDepartements();
 }

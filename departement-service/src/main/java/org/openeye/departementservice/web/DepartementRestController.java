@@ -36,19 +36,14 @@ public class DepartementRestController {
         return departementService.getAllDepartements();
     }
 
-    @GetMapping("/{departementCode}")
-    public DepartementDTO getDepartementByCode(@PathVariable String departementCode) {
-        return departementService.getDepartementByCode(departementCode);
+    @GetMapping("/{departementId}")
+    public DepartementDTO getDepartementById(@PathVariable String departementId) {
+        return departementService.getDepartementById(departementId);
     }
 
-    @GetMapping("/active")
-    public List<DepartementDTO> getActiveDepartements() {
-        return departementService.getActiveDepartements();
-    }
-
-    @GetMapping("/active/count")
-    public long countActiveDepartements() {
-        return departementService.countActiveDepartements();
+    @GetMapping("/by-code")
+    public DepartementDTO getDepartementByCode(@RequestParam @NotBlank String code) {
+        return departementService.getDepartementByCode(code);
     }
 
     @GetMapping("/search")
@@ -62,23 +57,23 @@ public class DepartementRestController {
     ) {
         DepartementDTO created = departementService.createDepartement(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{departementCode}")
-                .buildAndExpand(created.getDepartementCode())
+                .path("/{departementId}")
+                .buildAndExpand(created.getDepartementId())
                 .toUri();
         return ResponseEntity.created(location).body(created);
     }
 
-    @PatchMapping("/{departementCode}")
+    @PatchMapping("/{departementId}")
     public DepartementDTO updateDepartement(
-            @PathVariable String departementCode,
+            @PathVariable String departementId,
             @Valid @RequestBody DepartementUpdateRequest request
     ) {
-        return departementService.updateDepartement(departementCode, request);
+        return departementService.updateDepartement(departementId, request);
     }
 
-    @DeleteMapping("/{departementCode}")
-    public ResponseEntity<Void> deleteDepartement(@PathVariable String departementCode) {
-        departementService.deleteDepartement(departementCode);
+    @DeleteMapping("/{departementId}")
+    public ResponseEntity<Void> deleteDepartement(@PathVariable String departementId) {
+        departementService.deleteDepartement(departementId);
         return ResponseEntity.noContent().build();
     }
 }

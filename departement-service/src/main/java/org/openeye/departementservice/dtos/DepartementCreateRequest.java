@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DepartementCreateRequest {
 
+    @NotBlank(message = "Departement code is required")
     @Size(max = 20, message = "Departement code must not exceed 20 characters")
     private String departementCode;
 
@@ -20,6 +21,6 @@ public class DepartementCreateRequest {
 
     private String description;
 
-    @Size(max = 20, message = "Head teacher ID must not exceed 20 characters")
+    @Size(max = 36, message = "Head teacher ID must not exceed 36 characters")
     private String headTeacherId;
 }
