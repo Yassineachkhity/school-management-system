@@ -7,25 +7,20 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface StudentRepository extends JpaRepository<Student, Long> {
-    List<Student> findByGradeLevelAndSection(Integer gradeLevel, String section);
+public interface StudentRepository extends JpaRepository<Student, String> {
+    List<Student> findByDepartementId(String departementId);
 
-    @Query("SELECT s FROM Student s WHERE s.gradeLevel = :grade AND s.status = 'ACTIVE'")
-    List<Student> findActiveStudentsByGrade(@Param("grade") Integer grade);
+    List<Student> findByGradeLevel(Integer gradeLevel);
 
     @Query("SELECT s FROM Student s WHERE " +
             "LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.studentId) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(s.apogeCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Student> searchStudents(@Param("keyword") String keyword);
 
-    @Query("SELECT COUNT(s) FROM Student s WHERE s.gradeLevel = :grade AND s.status = 'ACTIVE'")
-    long countActiveStudentsByGrade(@Param("grade") Integer grade);
-
-    boolean existsByStudentId(String studentId);
-
-    boolean existsByEmail(String email);
+    boolean existsByApogeCode(String apogeCode);
 
     Student findByStudentId(String studentId);
 }

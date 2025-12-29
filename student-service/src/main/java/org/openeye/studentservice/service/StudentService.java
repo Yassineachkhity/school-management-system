@@ -19,9 +19,7 @@ public interface StudentService {
 
     List<StudentDTO> searchStudents(String keyword);
 
-    List<StudentDTO> getStudentsByGradeAndSection(Integer gradeLevel, String section);
+    List<StudentDTO> getStudentsByDepartementId(String departementId);
 
-    List<StudentDTO> getActiveStudentsByGrade(Integer gradeLevel);
-
-    long countActiveStudentsByGrade(Integer gradeLevel);
+    List<StudentDTO> getStudentsByGradeLevel(Integer gradeLevel);
 }

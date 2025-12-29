@@ -3,11 +3,15 @@ package org.openeye.studentservice.dtos;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -20,24 +24,25 @@ public class StudentUpdateRequest {
     @Size(min = 2, max = 100, message = "Last name must be between 2 and 100 characters")
     private String lastName;
 
+    @Size(min = 2, max = 20, message = "Apoge code must be between 2 and 20 characters")
+    private String apogeCode;
+
     @Email(message = "Invalid email format")
     private String email;
 
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
     private String phone;
 
-    private String address;
+    @PastOrPresent(message = "Admission date must be in the past or present")
+    private LocalDate admissionDate;
 
     @Min(value = 1, message = "Grade level must be at least 1")
-    @Max(value = 12, message = "Grade level must not exceed 12")
+    @Max(value = 5, message = "Grade level must not exceed 5")
     private Integer gradeLevel;
 
-    @Size(max = 10, message = "Section must not exceed 10 characters")
-    private String section;
+    @Past(message = "Date of birth must be in the past")
+    private LocalDate dateOfBirth;
 
-    @Pattern(
-            regexp = "ACTIVE|INACTIVE|GRADUATED|TRANSFERRED|SUSPENDED",
-            message = "Status must be ACTIVE, INACTIVE, GRADUATED, TRANSFERRED, SUSPENDED"
-    )
-    private String status;
+    @Size(min = 1, max = 36, message = "Departement ID must be between 1 and 36 characters")
+    private String departementId;
 }

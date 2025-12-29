@@ -43,26 +43,18 @@ public class StudentController {
         return studentService.getStudentByStudentId(studentId);
     }
 
-    @GetMapping("/by-grade-section")
-    public List<StudentDTO> getStudentsByGradeAndSection(
-            @RequestParam @Min(1) @Max(12) Integer gradeLevel,
-            @RequestParam @NotBlank String section
+    @GetMapping("/by-departement")
+    public List<StudentDTO> getStudentsByDepartement(
+            @RequestParam @NotBlank String departementId
     ) {
-        return studentService.getStudentsByGradeAndSection(gradeLevel, section);
+        return studentService.getStudentsByDepartementId(departementId);
     }
 
-    @GetMapping("/active")
-    public List<StudentDTO> getActiveStudentsByGrade(
-            @RequestParam @Min(1) @Max(12) Integer gradeLevel
+    @GetMapping("/by-grade")
+    public List<StudentDTO> getStudentsByGradeLevel(
+            @RequestParam @Min(1) @Max(5) Integer gradeLevel
     ) {
-        return studentService.getActiveStudentsByGrade(gradeLevel);
-    }
-
-    @GetMapping("/active/count")
-    public long countActiveStudentsByGrade(
-            @RequestParam @Min(1) @Max(12) Integer gradeLevel
-    ) {
-        return studentService.countActiveStudentsByGrade(gradeLevel);
+        return studentService.getStudentsByGradeLevel(gradeLevel);
     }
 
     @GetMapping("/search")

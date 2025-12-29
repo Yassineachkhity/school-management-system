@@ -1,9 +1,17 @@
 package org.openeye.studentservice.dao.entities;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.openeye.studentservice.enums.Gender;
-import org.openeye.studentservice.enums.StudentStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,12 +26,8 @@ import java.time.LocalDateTime;
 @Table(name = "students")
 public class Student {
 
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true, nullable = false, length = 20)
+    @Column(nullable = false, length = 36)
     private String studentId;
 
     @Column(nullable = false, length = 100)
@@ -32,30 +36,26 @@ public class Student {
     @Column(nullable = false, length = 100)
     private String lastName;
 
-    @Column(nullable = false)
-    private LocalDate dateOfBirth;
+    @Column(nullable = false, unique = true, length = 20)
+    private String apogeCode;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    @Column(unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String email;
 
     @Column(length = 15)
     private String phone;
 
-    @Column(columnDefinition = "TEXT")
-    private String address;
-
+    @Column(nullable = false)
     private LocalDate admissionDate;
 
+    @Column(nullable = false)
     private Integer gradeLevel;
 
-    @Column(length = 10)
-    private String section;
+    @Column(nullable = false)
+    private LocalDate dateOfBirth;
 
-    @Enumerated(EnumType.STRING)
-    private StudentStatus status;
+    @Column(nullable = false, length = 36)
+    private String departementId;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -72,5 +72,4 @@ public class Student {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
 }
