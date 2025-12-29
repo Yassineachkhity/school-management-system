@@ -4,8 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -30,8 +28,8 @@ import java.time.LocalDateTime;
 @Table(name = "courses")
 public class Course {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(nullable = false, length = 36)
+    private String courseId;
 
     @Column(unique = true, nullable = false, length = 20)
     private String courseCode;
@@ -42,17 +40,14 @@ public class Course {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, length = 100)
-    private String department;
-
-    @Column(nullable = false)
-    private Integer gradeLevel;
+    @Column(nullable = false, length = 36)
+    private String departementId;
 
     @Column(nullable = false)
     private Integer creditHours;
 
-    @Column(length = 20)
-    private String teacherId;
+    @Column(nullable = false)
+    private Integer semester;
 
     @Enumerated(EnumType.STRING)
     private CourseStatus status;

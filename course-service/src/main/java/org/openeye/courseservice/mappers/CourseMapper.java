@@ -16,14 +16,13 @@ public class CourseMapper {
         }
 
         return CourseDTO.builder()
-                .id(course.getId())
+                .courseId(course.getCourseId())
                 .courseCode(course.getCourseCode())
                 .title(course.getTitle())
                 .description(course.getDescription())
-                .department(course.getDepartment())
-                .gradeLevel(course.getGradeLevel())
                 .creditHours(course.getCreditHours())
-                .teacherId(course.getTeacherId())
+                .semester(course.getSemester())
+                .departementId(course.getDepartementId())
                 .status(course.getStatus())
                 .build();
     }
@@ -36,10 +35,9 @@ public class CourseMapper {
         return Course.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .department(request.getDepartment())
-                .gradeLevel(request.getGradeLevel())
                 .creditHours(request.getCreditHours())
-                .teacherId(request.getTeacherId())
+                .semester(request.getSemester())
+                .departementId(request.getDepartementId())
                 .status(CourseStatus.ACTIVE)
                 .build();
     }
@@ -55,17 +53,14 @@ public class CourseMapper {
         if (request.getDescription() != null) {
             course.setDescription(request.getDescription());
         }
-        if (request.getDepartment() != null) {
-            course.setDepartment(request.getDepartment());
-        }
-        if (request.getGradeLevel() != null) {
-            course.setGradeLevel(request.getGradeLevel());
-        }
         if (request.getCreditHours() != null) {
             course.setCreditHours(request.getCreditHours());
         }
-        if (request.getTeacherId() != null) {
-            course.setTeacherId(request.getTeacherId());
+        if (request.getSemester() != null) {
+            course.setSemester(request.getSemester());
+        }
+        if (request.getDepartementId() != null) {
+            course.setDepartementId(request.getDepartementId());
         }
         if (request.getStatus() != null) {
             course.setStatus(parseStatus(request.getStatus()));

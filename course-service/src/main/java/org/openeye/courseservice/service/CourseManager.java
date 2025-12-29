@@ -1,6 +1,8 @@
 package org.openeye.courseservice.service;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.openeye.courseservice.clients.DepartementClient;
 import org.openeye.courseservice.dao.entities.Course;
 import org.openeye.courseservice.dao.repositories.CourseRepository;
 import org.openeye.courseservice.dtos.CourseCreateRequest;
@@ -8,12 +10,11 @@ import org.openeye.courseservice.dtos.CourseDTO;
 import org.openeye.courseservice.dtos.CourseUpdateRequest;
 import org.openeye.courseservice.exceptions.CourseNotFoundException;
 import org.openeye.courseservice.exceptions.DuplicateCourseException;
+import org.openeye.courseservice.exceptions.InvalidDepartementException;
 import org.openeye.courseservice.mappers.CourseMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,11 +22,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class CourseManager implements CourseService {
-    private static final int CODE_GENERATION_ATTEMPTS = 5;
 
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
-    private final SecureRandom random = new SecureRandom();
+    private final DepartementClient departementClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -37,38 +37,51 @@ public class CourseManager implements CourseService {
 
     @Override
     @Transactional(readOnly = true)
-    public CourseDTO getCourseByCourseCode(String courseCode) {
-        return courseMapper.toDTO(findCourseByCourseCode(courseCode));
+    public CourseDTO getCourseByCourseId(String courseId) {
+        return courseMapper.toDTO(findCourseByCourseId(courseId));
     }
 
     @Override
     public CourseDTO createCourse(CourseCreateRequest request) {
         String courseCode = normalizeCourseCode(request.getCourseCode());
-        if (courseCode != null && courseRepository.existsByCourseCode(courseCode)) {
+        if (courseRepository.existsByCourseCode(courseCode)) {
             throw new DuplicateCourseException("Course code already in use: " + courseCode);
         }
-        if (courseCode == null) {
-            courseCode = generateCourseCode();
-        }
+
+        String departementId = normalize(request.getDepartementId());
+        validateDepartementExists(departementId);
 
         Course course = courseMapper.toEntity(request);
+        course.setCourseId(UUID.randomUUID().toString());
         course.setCourseCode(courseCode);
+        course.setDepartementId(departementId);
 
         Course saved = courseRepository.save(course);
         return courseMapper.toDTO(saved);
     }
 
     @Override
-    public CourseDTO updateCourse(String courseCode, CourseUpdateRequest request) {
-        Course course = findCourseByCourseCode(courseCode);
+    public CourseDTO updateCourse(String courseId, CourseUpdateRequest request) {
+        Course course = findCourseByCourseId(courseId);
+
+        String departementId = null;
+        if (request.getDepartementId() != null) {
+            departementId = normalize(request.getDepartementId());
+            validateDepartementExists(departementId);
+        }
+
         courseMapper.updateEntityFromDTO(course, request);
+        if (departementId != null) {
+            course.setDepartementId(departementId);
+        }
+
         Course saved = courseRepository.save(course);
         return courseMapper.toDTO(saved);
     }
 
     @Override
-    public void deleteCourse(String courseCode) {
-        Course course = findCourseByCourseCode(courseCode);
+    public void deleteCourse(String courseId) {
+        Course course = findCourseByCourseId(courseId);
         courseRepository.delete(course);
     }
 
@@ -83,46 +96,54 @@ public class CourseManager implements CourseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseDTO> getCoursesByDepartmentAndGradeLevel(String department, Integer gradeLevel) {
-        String trimmedDepartment = department.trim();
-        return courseRepository.findByDepartmentAndGradeLevel(trimmedDepartment, gradeLevel).stream()
+    public List<CourseDTO> getCoursesByDepartementId(String departementId) {
+        String trimmedDepartementId = normalize(departementId);
+        return courseRepository.findByDepartementId(trimmedDepartementId).stream()
                 .map(courseMapper::toDTO)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseDTO> getCoursesByTeacherId(String teacherId) {
-        String trimmedTeacherId = teacherId.trim();
-        return courseRepository.findByTeacherId(trimmedTeacherId).stream()
+    public List<CourseDTO> getCoursesByDepartementAndSemester(String departementId, Integer semester) {
+        String trimmedDepartementId = normalize(departementId);
+        return courseRepository.findByDepartementIdAndSemester(trimmedDepartementId, semester).stream()
                 .map(courseMapper::toDTO)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseDTO> getActiveCoursesByDepartment(String department) {
-        String trimmedDepartment = department.trim();
-        return courseRepository.findActiveCoursesByDepartment(trimmedDepartment).stream()
+    public List<CourseDTO> getCoursesBySemester(Integer semester) {
+        return courseRepository.findBySemester(semester).stream()
                 .map(courseMapper::toDTO)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public long countActiveCoursesByDepartment(String department) {
-        String trimmedDepartment = department.trim();
-        return courseRepository.countActiveCoursesByDepartment(trimmedDepartment);
+    public List<CourseDTO> getActiveCoursesByDepartement(String departementId) {
+        String trimmedDepartementId = normalize(departementId);
+        return courseRepository.findActiveCoursesByDepartement(trimmedDepartementId).stream()
+                .map(courseMapper::toDTO)
+                .toList();
     }
 
-    private Course findCourseByCourseCode(String courseCode) {
-        String normalizedCode = normalizeCourseCode(courseCode);
-        if (normalizedCode == null) {
-            throw new CourseNotFoundException("Course not found: " + courseCode);
+    @Override
+    @Transactional(readOnly = true)
+    public long countActiveCoursesByDepartement(String departementId) {
+        String trimmedDepartementId = normalize(departementId);
+        return courseRepository.countActiveCoursesByDepartement(trimmedDepartementId);
+    }
+
+    private Course findCourseByCourseId(String courseId) {
+        String normalizedId = normalize(courseId);
+        if (normalizedId == null) {
+            throw new CourseNotFoundException("Course not found: " + courseId);
         }
-        Course course = courseRepository.findByCourseCode(normalizedCode);
+        Course course = courseRepository.findByCourseId(normalizedId);
         if (course == null) {
-            throw new CourseNotFoundException("Course not found: " + courseCode);
+            throw new CourseNotFoundException("Course not found: " + courseId);
         }
         return course;
     }
@@ -134,21 +155,21 @@ public class CourseManager implements CourseService {
         return courseCode.trim().toUpperCase();
     }
 
-    private String generateCourseCode() {
-        String year = String.valueOf(LocalDate.now().getYear());
-        for (int attempt = 0; attempt < CODE_GENERATION_ATTEMPTS; attempt++) {
-            String candidate = "CRS" + year + String.format("%06d", random.nextInt(1_000_000));
-            if (!courseRepository.existsByCourseCode(candidate)) {
-                return candidate;
-            }
+    private void validateDepartementExists(String departementId) {
+        if (departementId == null || departementId.isBlank()) {
+            throw new InvalidDepartementException("Departement is required");
         }
+        try {
+            departementClient.getDepartementById(departementId);
+        } catch (FeignException.NotFound ex) {
+            throw new InvalidDepartementException("Departement not found: " + departementId);
+        }
+    }
 
-        String candidate;
-        do {
-            candidate = "CRS" + UUID.randomUUID().toString().replace("-", "")
-                    .substring(0, 12)
-                    .toUpperCase();
-        } while (courseRepository.existsByCourseCode(candidate));
-        return candidate;
+    private String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.trim();
     }
 }

@@ -9,21 +9,23 @@ import java.util.List;
 public interface CourseService {
     List<CourseDTO> getAllCourses();
 
-    CourseDTO getCourseByCourseCode(String courseCode);
+    CourseDTO getCourseByCourseId(String courseId);
 
     CourseDTO createCourse(CourseCreateRequest request);
 
-    CourseDTO updateCourse(String courseCode, CourseUpdateRequest request);
+    CourseDTO updateCourse(String courseId, CourseUpdateRequest request);
 
-    void deleteCourse(String courseCode);
+    void deleteCourse(String courseId);
 
     List<CourseDTO> searchCourses(String keyword);
 
-    List<CourseDTO> getCoursesByDepartmentAndGradeLevel(String department, Integer gradeLevel);
+    List<CourseDTO> getCoursesByDepartementId(String departementId);
 
-    List<CourseDTO> getCoursesByTeacherId(String teacherId);
+    List<CourseDTO> getCoursesByDepartementAndSemester(String departementId, Integer semester);
 
-    List<CourseDTO> getActiveCoursesByDepartment(String department);
+    List<CourseDTO> getCoursesBySemester(Integer semester);
 
-    long countActiveCoursesByDepartment(String department);
+    List<CourseDTO> getActiveCoursesByDepartement(String departementId);
+
+    long countActiveCoursesByDepartement(String departementId);
 }

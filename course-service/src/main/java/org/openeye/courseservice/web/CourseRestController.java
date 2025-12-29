@@ -1,7 +1,6 @@
 package org.openeye.courseservice.web;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -38,36 +37,45 @@ public class CourseRestController {
         return courseService.getAllCourses();
     }
 
-    @GetMapping("/{courseCode}")
-    public CourseDTO getCourseByCourseCode(@PathVariable String courseCode) {
-        return courseService.getCourseByCourseCode(courseCode);
+    @GetMapping("/{courseId}")
+    public CourseDTO getCourseByCourseId(@PathVariable String courseId) {
+        return courseService.getCourseByCourseId(courseId);
     }
 
-    @GetMapping("/by-department-grade")
-    public List<CourseDTO> getCoursesByDepartmentAndGradeLevel(
-            @RequestParam @NotBlank String department,
-            @RequestParam @Min(1) @Max(12) Integer gradeLevel
+    @GetMapping("/by-departement")
+    public List<CourseDTO> getCoursesByDepartement(
+            @RequestParam @NotBlank String departementId
     ) {
-        return courseService.getCoursesByDepartmentAndGradeLevel(department, gradeLevel);
+        return courseService.getCoursesByDepartementId(departementId);
     }
 
-    @GetMapping("/by-teacher")
-    public List<CourseDTO> getCoursesByTeacherId(@RequestParam @NotBlank String teacherId) {
-        return courseService.getCoursesByTeacherId(teacherId);
+    @GetMapping("/by-departement-semester")
+    public List<CourseDTO> getCoursesByDepartementAndSemester(
+            @RequestParam @NotBlank String departementId,
+            @RequestParam @Min(1) Integer semester
+    ) {
+        return courseService.getCoursesByDepartementAndSemester(departementId, semester);
+    }
+
+    @GetMapping("/by-semester")
+    public List<CourseDTO> getCoursesBySemester(
+            @RequestParam @Min(1) Integer semester
+    ) {
+        return courseService.getCoursesBySemester(semester);
     }
 
     @GetMapping("/active")
-    public List<CourseDTO> getActiveCoursesByDepartment(
-            @RequestParam @NotBlank String department
+    public List<CourseDTO> getActiveCoursesByDepartement(
+            @RequestParam @NotBlank String departementId
     ) {
-        return courseService.getActiveCoursesByDepartment(department);
+        return courseService.getActiveCoursesByDepartement(departementId);
     }
 
     @GetMapping("/active/count")
-    public long countActiveCoursesByDepartment(
-            @RequestParam @NotBlank String department
+    public long countActiveCoursesByDepartement(
+            @RequestParam @NotBlank String departementId
     ) {
-        return courseService.countActiveCoursesByDepartment(department);
+        return courseService.countActiveCoursesByDepartement(departementId);
     }
 
     @GetMapping("/search")
@@ -79,23 +87,23 @@ public class CourseRestController {
     public ResponseEntity<CourseDTO> createCourse(@Valid @RequestBody CourseCreateRequest request) {
         CourseDTO created = courseService.createCourse(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{courseCode}")
-                .buildAndExpand(created.getCourseCode())
+                .path("/{courseId}")
+                .buildAndExpand(created.getCourseId())
                 .toUri();
         return ResponseEntity.created(location).body(created);
     }
 
-    @PatchMapping("/{courseCode}")
+    @PatchMapping("/{courseId}")
     public CourseDTO updateCourse(
-            @PathVariable String courseCode,
+            @PathVariable String courseId,
             @Valid @RequestBody CourseUpdateRequest request
     ) {
-        return courseService.updateCourse(courseCode, request);
+        return courseService.updateCourse(courseId, request);
     }
 
-    @DeleteMapping("/{courseCode}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable String courseCode) {
-        courseService.deleteCourse(courseCode);
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<Void> deleteCourse(@PathVariable String courseId) {
+        courseService.deleteCourse(courseId);
         return ResponseEntity.noContent().build();
     }
 }

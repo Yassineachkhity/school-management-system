@@ -12,16 +12,15 @@ import org.openeye.courseservice.enums.CourseStatus;
 @AllArgsConstructor
 public class CourseDTO {
 
-    private Long id;
+    private String courseId;
     private String courseCode;
 
     private String title;
     private String description;
-    private String department;
+    private String departementId;
 
-    private Integer gradeLevel;
     private Integer creditHours;
-    private String teacherId;
+    private Integer semester;
 
     private CourseStatus status;
 }
