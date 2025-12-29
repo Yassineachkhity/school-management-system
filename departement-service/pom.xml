@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.openeye</groupId>
-    <artifactId>grading-service</artifactId>
+    <artifactId>departement-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>grading-service</name>
-    <description>grading-service</description>
+    <description>departement-service</description>
     <url/>
     <licenses>
         <license/>

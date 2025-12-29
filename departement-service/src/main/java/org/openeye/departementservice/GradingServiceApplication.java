@@ -1,4 +1,4 @@
-package org.openeye.gradingservice;
+package org.openeye.departementservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

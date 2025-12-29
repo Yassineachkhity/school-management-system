@@ -1,4 +1,4 @@
-package org.openeye.gradingservice;
+package org.openeye.departementservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
