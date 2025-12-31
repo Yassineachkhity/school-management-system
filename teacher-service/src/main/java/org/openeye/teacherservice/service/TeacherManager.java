@@ -2,6 +2,7 @@ package org.openeye.teacherservice.service;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.openeye.teacherservice.clients.AuthClient;
 import org.openeye.teacherservice.clients.DepartementClient;
 import org.openeye.teacherservice.dao.entities.Teacher;
 import org.openeye.teacherservice.dao.repositories.TeacherRepository;
@@ -11,6 +12,7 @@ import org.openeye.teacherservice.dtos.TeacherUpdateRequest;
 import org.openeye.teacherservice.enums.Level;
 import org.openeye.teacherservice.exceptions.DuplicateTeacherException;
 import org.openeye.teacherservice.exceptions.InvalidDepartementException;
+import org.openeye.teacherservice.exceptions.InvalidUserException;
 import org.openeye.teacherservice.exceptions.TeacherNotFoundException;
 import org.openeye.teacherservice.mappers.TeacherMapper;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class TeacherManager implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final TeacherMapper teacherMapper;
     private final DepartementClient departementClient;
+    private final AuthClient authClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -50,11 +53,18 @@ public class TeacherManager implements TeacherService {
             throw new DuplicateTeacherException("Employee number already in use: " + employeeNumber);
         }
 
+        String userId = normalize(request.getUserId());
+        validateUserExists(userId);
+        if (teacherRepository.existsByUserId(userId)) {
+            throw new DuplicateTeacherException("User already linked to another teacher: " + userId);
+        }
+
         String departementId = normalize(request.getDepartementId());
         validateDepartementExists(departementId);
 
         Teacher teacher = teacherMapper.toEntity(request);
         teacher.setTeacherId(UUID.randomUUID().toString());
+        teacher.setUserId(userId);
         teacher.setEmployeeNumber(employeeNumber);
         teacher.setDepartementId(departementId);
         teacher.setEmail(normalize(request.getEmail()));
@@ -80,6 +90,16 @@ public class TeacherManager implements TeacherService {
             }
         }
 
+        String userId = null;
+        if (request.getUserId() != null) {
+            userId = normalize(request.getUserId());
+            validateUserExists(userId);
+            if (!userId.equalsIgnoreCase(teacher.getUserId())
+                    && teacherRepository.existsByUserId(userId)) {
+                throw new DuplicateTeacherException("User already linked to another teacher: " + userId);
+            }
+        }
+
         String departementId = null;
         if (request.getDepartementId() != null) {
             departementId = normalize(request.getDepartementId());
@@ -87,6 +107,9 @@ public class TeacherManager implements TeacherService {
         }
 
         teacherMapper.updateEntityFromDTO(teacher, request);
+        if (userId != null) {
+            teacher.setUserId(userId);
+        }
         if (employeeNumber != null) {
             teacher.setEmployeeNumber(employeeNumber);
         }
@@ -168,6 +191,17 @@ public class TeacherManager implements TeacherService {
             departementClient.getDepartementById(departementId);
         } catch (FeignException.NotFound ex) {
             throw new InvalidDepartementException("Departement not found: " + departementId);
+        }
+    }
+
+    private void validateUserExists(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new InvalidUserException("User is required");
+        }
+        try {
+            authClient.getUserById(userId);
+        } catch (FeignException.NotFound ex) {
+            throw new InvalidUserException("User not found: " + userId);
         }
     }
 

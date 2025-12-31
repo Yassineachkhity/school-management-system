@@ -20,6 +20,7 @@ public interface TeacherRepository extends JpaRepository<Teacher, String> {
             "LOWER(t.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(t.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(t.teacherId) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(t.userId) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(t.employeeNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(t.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(t.departementId) LIKE LOWER(CONCAT('%', :keyword, '%'))")
@@ -29,6 +30,8 @@ public interface TeacherRepository extends JpaRepository<Teacher, String> {
     long countActiveTeachersByDepartement(@Param("departementId") String departementId);
 
     boolean existsByEmployeeNumber(String employeeNumber);
+
+    boolean existsByUserId(String userId);
 
     Teacher findByTeacherId(String teacherId);
 }

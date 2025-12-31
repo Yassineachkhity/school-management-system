@@ -16,6 +16,7 @@ import java.time.LocalDate;
 public class StudentDTO {
 
     private String studentId;
+    private String userId;
     private String apogeCode;
 
     private String firstName;

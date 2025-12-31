@@ -18,6 +18,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class StudentUpdateRequest {
 
+    @Size(min = 1, max = 36, message = "User ID must be between 1 and 36 characters")
+    private String userId;
+
     @Size(min = 2, max = 100, message = "First name must be between 2 and 100 characters")
     private String firstName;
 

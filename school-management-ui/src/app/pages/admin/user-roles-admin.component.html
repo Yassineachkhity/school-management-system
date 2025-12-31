@@ -1,0 +1,64 @@
+<div class="page-header fade-up">
+  <div>
+    <h1 class="page-title">User roles</h1>
+    <p class="page-subtitle">
+      Assign roles to users and keep permissions aligned with keycloak groups.
+    </p>
+  </div>
+</div>
+
+<div class="page-grid">
+  <section class="card-shell fade-up">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="mb-0">Assignments</h5>
+      <button class="btn btn-soft" type="button" (click)="loadUserRoles()">Refresh</button>
+    </div>
+    <div *ngIf="loading" class="empty-state">Loading assignments...</div>
+    <div *ngIf="!loading && userRoles.length === 0" class="empty-state">No roles assigned yet.</div>
+    <div *ngIf="!loading && userRoles.length > 0" class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let assignment of userRoles">
+            <td>{{ resolveUserLabel(assignment.userId) }}</td>
+            <td>{{ assignment.roleLabel }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-danger" type="button" (click)="removeRole(assignment)">
+                Remove
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-warning mt-3">{{ errorMessage }}</div>
+  </section>
+
+  <section class="card-shell fade-up">
+    <h5 class="mb-3">Assign new role</h5>
+    <form [formGroup]="assignForm" (ngSubmit)="assignRole()">
+      <div class="mb-3">
+        <label class="form-label">User</label>
+        <select class="form-select" formControlName="userId">
+          <option value="">Select user</option>
+          <option *ngFor="let user of userOptions" [value]="user.value">{{ user.label }}</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select class="form-select" formControlName="roleLabel">
+          <option value="">Select role</option>
+          <option *ngFor="let role of roleOptions" [value]="role.value">{{ role.label }}</option>
+        </select>
+      </div>
+      <button class="btn btn-brand" type="submit" [disabled]="assignForm.invalid">Assign role</button>
+    </form>
+  </section>
+</div>

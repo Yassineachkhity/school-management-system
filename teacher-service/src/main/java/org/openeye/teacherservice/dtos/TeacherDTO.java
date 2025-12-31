@@ -17,6 +17,7 @@ import java.time.LocalDate;
 public class TeacherDTO {
 
     private String teacherId;
+    private String userId;
     private String employeeNumber;
 
     private String firstName;

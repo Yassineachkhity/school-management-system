@@ -1,0 +1,109 @@
+<div class="page-header fade-up">
+  <div>
+    <h1 class="page-title">Users</h1>
+    <p class="page-subtitle">
+      Manage user records synced from Keycloak, then assign roles to control access.
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-soft" type="button" (click)="loadUsers()">Refresh</button>
+    <button class="btn btn-brand" type="button" (click)="syncUsers()" [disabled]="syncing">
+      {{ syncing ? 'Syncing...' : 'Sync Keycloak users' }}
+    </button>
+  </div>
+</div>
+
+<div class="page-grid">
+  <section class="card-shell fade-up">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="mb-0">User list</h5>
+      <span class="form-hint">{{ users.length }} users</span>
+    </div>
+    <div *ngIf="loading" class="empty-state">Loading users...</div>
+    <div *ngIf="!loading && users.length === 0" class="empty-state">No users found.</div>
+    <div *ngIf="!loading && users.length > 0" class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Created</th>
+            <th>Last login</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let user of users"
+            [class.selected]="selected?.userId === user.userId"
+            (click)="selectUser(user)"
+          >
+            <td>{{ user.email }}</td>
+            <td>{{ formatDate(user.createdAt) }}</td>
+            <td>{{ formatDate(user.lastLoginAt) }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-soft" type="button" (click)="selectUser(user); $event.stopPropagation()">
+                Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger ms-2" type="button" (click)="deleteUser(user); $event.stopPropagation()">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-warning mt-3">{{ errorMessage }}</div>
+  </section>
+
+  <div class="d-flex flex-column gap-3">
+    <section class="card-shell fade-up">
+      <h5 class="mb-3">Create user</h5>
+      <form [formGroup]="createForm" (ngSubmit)="createUser()" class="stagger">
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input class="form-control" type="email" formControlName="email" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input class="form-control" type="password" formControlName="password" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <select class="form-select" formControlName="roleLabel">
+            <option value="">Select role</option>
+            <option *ngFor="let role of roleOptions" [value]="role.value">{{ role.label }}</option>
+          </select>
+        </div>
+        <button class="btn btn-brand" type="submit" [disabled]="createForm.invalid">Create user</button>
+      </form>
+    </section>
+
+    <section class="card-shell fade-up" *ngIf="selected; else selectHint">
+      <h5 class="mb-3">Update user</h5>
+      <form [formGroup]="updateForm" (ngSubmit)="updateUser()" class="mb-4">
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input class="form-control" type="email" formControlName="email" />
+        </div>
+        <button class="btn btn-brand" type="submit" [disabled]="updateForm.invalid">Save changes</button>
+      </form>
+
+      <h6 class="mb-2">Reset password</h6>
+      <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+        <div class="mb-3">
+          <label class="form-label">New password</label>
+          <input class="form-control" type="password" formControlName="password" />
+        </div>
+        <button class="btn btn-soft" type="submit" [disabled]="passwordForm.invalid">Update password</button>
+      </form>
+    </section>
+
+    <ng-template #selectHint>
+      <section class="card-shell fade-up">
+        <h5 class="mb-2">Select a user</h5>
+        <p class="form-hint mb-0">Choose a user from the table to update their email or password.</p>
+      </section>
+    </ng-template>
+  </div>
+</div>

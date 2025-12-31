@@ -1,0 +1,46 @@
+<div class="login-shell">
+  <div class="login-panel fade-up">
+    <span class="tag">Secure access</span>
+    <h1>School Management Portal</h1>
+    <p class="page-subtitle">
+      Sign in to manage students, teachers, courses, and enrollment from one workspace.
+    </p>
+
+    <ul>
+      <li>Centralized CRUD across all microservices</li>
+      <li>Role aware access for admin, teacher, and student</li>
+      <li>Keycloak based authentication and JWT flow</li>
+    </ul>
+
+    <div class="mt-4 d-flex flex-column gap-2">
+      <button class="btn btn-brand btn-lg" type="button" (click)="login()" [disabled]="loading">
+        {{ loading ? 'Redirecting...' : 'Sign in with Keycloak' }}
+      </button>
+      <div class="form-hint">
+        Configure Keycloak settings in <code>src/environments/environment.ts</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="login-panel fade-up">
+    <h2 class="mb-3">Access flow</h2>
+    <div class="status-card mb-3">
+      <strong>Gateway first</strong>
+      <p class="form-hint mb-0">
+        The UI calls the gateway on port 8888, and the gateway validates every request.
+      </p>
+    </div>
+    <div class="status-card mb-3">
+      <strong>Roles in action</strong>
+      <p class="form-hint mb-0">
+        Admin manages everything, teachers grade and read, students read curriculum and enrollment.
+      </p>
+    </div>
+    <div class="status-card">
+      <strong>Data sync</strong>
+      <p class="form-hint mb-0">
+        Admin can sync Keycloak users to the auth database for user tracking.
+      </p>
+    </div>
+  </div>
+</div>

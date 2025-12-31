@@ -30,6 +30,9 @@ public class Student {
     @Column(nullable = false, length = 36)
     private String studentId;
 
+    @Column(nullable = false, unique = true, length = 36)
+    private String userId;
+
     @Column(nullable = false, length = 100)
     private String firstName;
 

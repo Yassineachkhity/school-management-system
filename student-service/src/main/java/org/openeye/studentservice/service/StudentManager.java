@@ -2,6 +2,7 @@ package org.openeye.studentservice.service;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.openeye.studentservice.clients.AuthClient;
 import org.openeye.studentservice.clients.DepartementClient;
 import org.openeye.studentservice.dao.entities.Student;
 import org.openeye.studentservice.dao.repositories.StudentRepository;
@@ -10,6 +11,7 @@ import org.openeye.studentservice.dtos.StudentDTO;
 import org.openeye.studentservice.dtos.StudentUpdateRequest;
 import org.openeye.studentservice.exceptions.DuplicateStudentException;
 import org.openeye.studentservice.exceptions.InvalidDepartementException;
+import org.openeye.studentservice.exceptions.InvalidUserException;
 import org.openeye.studentservice.exceptions.StudentNotFoundException;
 import org.openeye.studentservice.mappers.StudentMapper;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class StudentManager implements StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final DepartementClient departementClient;
+    private final AuthClient authClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -48,11 +51,18 @@ public class StudentManager implements StudentService {
             throw new DuplicateStudentException("Apoge code already in use: " + apogeCode);
         }
 
+        String userId = normalize(request.getUserId());
+        validateUserExists(userId);
+        if (studentRepository.existsByUserId(userId)) {
+            throw new DuplicateStudentException("User already linked to another student: " + userId);
+        }
+
         String departementId = normalize(request.getDepartementId());
         validateDepartementExists(departementId);
 
         Student student = studentMapper.toEntity(request);
         student.setStudentId(UUID.randomUUID().toString());
+        student.setUserId(userId);
         student.setApogeCode(apogeCode);
         student.setEmail(normalize(request.getEmail()));
         student.setPhone(normalize(request.getPhone()));
@@ -75,6 +85,16 @@ public class StudentManager implements StudentService {
             }
         }
 
+        String userId = null;
+        if (request.getUserId() != null) {
+            userId = normalize(request.getUserId());
+            validateUserExists(userId);
+            if (!userId.equalsIgnoreCase(student.getUserId())
+                    && studentRepository.existsByUserId(userId)) {
+                throw new DuplicateStudentException("User already linked to another student: " + userId);
+            }
+        }
+
         String departementId = null;
         if (request.getDepartementId() != null) {
             departementId = normalize(request.getDepartementId());
@@ -83,6 +103,9 @@ public class StudentManager implements StudentService {
 
         studentMapper.updateEntityFromDTO(student, request);
 
+        if (userId != null) {
+            student.setUserId(userId);
+        }
         if (apogeCode != null) {
             student.setApogeCode(apogeCode);
         }
@@ -147,6 +170,17 @@ public class StudentManager implements StudentService {
             departementClient.getDepartementById(departementId);
         } catch (FeignException.NotFound ex) {
             throw new InvalidDepartementException("Departement not found: " + departementId);
+        }
+    }
+
+    private void validateUserExists(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new InvalidUserException("User is required");
+        }
+        try {
+            authClient.getUserById(userId);
+        } catch (FeignException.NotFound ex) {
+            throw new InvalidUserException("User not found: " + userId);
         }
     }
 

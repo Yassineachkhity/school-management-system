@@ -34,6 +34,9 @@ public class Teacher {
     @Column(nullable = false, length = 36)
     private String teacherId;
 
+    @Column(nullable = false, unique = true, length = 36)
+    private String userId;
+
     @Column(unique = true, nullable = false, length = 20)
     private String employeeNumber;
 

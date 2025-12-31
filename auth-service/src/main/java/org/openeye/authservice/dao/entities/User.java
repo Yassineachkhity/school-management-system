@@ -1,10 +1,19 @@
 package org.openeye.authservice.dao.entities;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import jakarta.persistence.*;
-import lombok.*;
-
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,17 +22,29 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Entity
+@Table(
+        name = "users",
+        uniqueConstraints = @UniqueConstraint(columnNames = "email")
+)
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(nullable = false, length = 36)
+    private String userId;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true, nullable = false)
-    private String password;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
+    private LocalDateTime lastLoginAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

@@ -14,6 +14,8 @@
         <option value="$PROJECT_DIR$/grading-service/pom.xml" />
         <option value="$PROJECT_DIR$/course-service/pom.xml" />
         <option value="$PROJECT_DIR$/departement-service/pom.xml" />
+        <option value="$PROJECT_DIR$/section-service/pom.xml" />
+        <option value="$PROJECT_DIR$/inscription-service/pom.xml" />
       </list>
     </option>
   </component>

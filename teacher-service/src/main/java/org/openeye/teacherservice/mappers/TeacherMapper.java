@@ -18,6 +18,7 @@ public class TeacherMapper {
 
         return TeacherDTO.builder()
                 .teacherId(teacher.getTeacherId())
+                .userId(teacher.getUserId())
                 .employeeNumber(teacher.getEmployeeNumber())
                 .firstName(teacher.getFirstName())
                 .lastName(teacher.getLastName())
@@ -37,6 +38,7 @@ public class TeacherMapper {
         }
 
         return Teacher.builder()
+                .userId(request.getUserId())
                 .employeeNumber(request.getEmployeeNumber())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -57,6 +59,9 @@ public class TeacherMapper {
 
         if (request.getFirstName() != null) {
             teacher.setFirstName(request.getFirstName());
+        }
+        if (request.getUserId() != null) {
+            teacher.setUserId(request.getUserId());
         }
         if (request.getLastName() != null) {
             teacher.setLastName(request.getLastName());

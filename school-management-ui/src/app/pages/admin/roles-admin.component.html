@@ -1,0 +1,53 @@
+<div class="page-header fade-up">
+  <div>
+    <h1 class="page-title">Roles</h1>
+    <p class="page-subtitle">
+      Review available role labels and create missing roles if needed.
+    </p>
+  </div>
+</div>
+
+<div class="page-grid">
+  <section class="card-shell fade-up">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="mb-0">Role list</h5>
+      <button class="btn btn-soft" type="button" (click)="loadRoles()">Refresh</button>
+    </div>
+    <div *ngIf="loading" class="empty-state">Loading roles...</div>
+    <div *ngIf="!loading && roles.length === 0" class="empty-state">No roles found.</div>
+    <div *ngIf="!loading && roles.length > 0" class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let role of roles">
+            <td>{{ role.label }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-danger" type="button" (click)="deleteRole(role)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-warning mt-3">{{ errorMessage }}</div>
+  </section>
+
+  <section class="card-shell fade-up">
+    <h5 class="mb-3">Create role</h5>
+    <form [formGroup]="createForm" (ngSubmit)="createRole()">
+      <div class="mb-3">
+        <label class="form-label">Role label</label>
+        <select class="form-select" formControlName="label">
+          <option value="">Select role</option>
+          <option *ngFor="let role of roleOptions" [value]="role.value">{{ role.label }}</option>
+        </select>
+      </div>
+      <button class="btn btn-brand" type="submit" [disabled]="createForm.invalid">Create role</button>
+    </form>
+  </section>
+</div>

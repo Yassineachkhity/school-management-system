@@ -16,11 +16,14 @@ public interface StudentRepository extends JpaRepository<Student, String> {
             "LOWER(s.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.studentId) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(s.userId) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.apogeCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Student> searchStudents(@Param("keyword") String keyword);
 
     boolean existsByApogeCode(String apogeCode);
+
+    boolean existsByUserId(String userId);
 
     Student findByStudentId(String studentId);
 }

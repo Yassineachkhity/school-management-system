@@ -1,0 +1,55 @@
+<div class="page-header fade-up">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">
+      Monitor academic data and jump into each service when you need updates.
+    </p>
+  </div>
+</div>
+
+<div class="stat-grid stagger mb-4">
+  <div class="stat-card" *ngFor="let stat of stats">
+    <div class="stat-label">{{ stat.label }}</div>
+    <div class="stat-value">
+      {{ (stat.count$ | async) ?? '-' }}
+    </div>
+  </div>
+</div>
+
+<div class="card-shell fade-up">
+  <h5 class="mb-3">Quick workflow</h5>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="status-card">
+        <strong>Start with departements</strong>
+        <p class="form-hint mb-0">
+          Create departements first so courses, teachers, and students can link correctly.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="status-card">
+        <strong>Sections before inscriptions</strong>
+        <p class="form-hint mb-0">
+          Each course needs a section before students can be enrolled.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="status-card">
+        <strong>Grades update</strong>
+        <p class="form-hint mb-0">
+          Teachers can update grades directly from the inscriptions workspace.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="status-card">
+        <strong>Role coverage</strong>
+        <p class="form-hint mb-0">
+          Admin can create, update, and delete. Teachers and students have read access.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

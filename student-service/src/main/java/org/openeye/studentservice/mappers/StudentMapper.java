@@ -16,6 +16,7 @@ public class StudentMapper {
 
         return StudentDTO.builder()
                 .studentId(student.getStudentId())
+                .userId(student.getUserId())
                 .apogeCode(student.getApogeCode())
                 .firstName(student.getFirstName())
                 .lastName(student.getLastName())
@@ -34,6 +35,7 @@ public class StudentMapper {
         }
 
         return Student.builder()
+                .userId(request.getUserId())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .apogeCode(request.getApogeCode())
@@ -53,6 +55,9 @@ public class StudentMapper {
 
         if (request.getFirstName() != null) {
             student.setFirstName(request.getFirstName());
+        }
+        if (request.getUserId() != null) {
+            student.setUserId(request.getUserId());
         }
         if (request.getLastName() != null) {
             student.setLastName(request.getLastName());

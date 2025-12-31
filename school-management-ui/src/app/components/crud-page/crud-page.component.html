@@ -1,0 +1,175 @@
+<div class="page-header fade-up">
+  <div>
+    <h1 class="page-title">{{ config.title }}</h1>
+    <p class="page-subtitle">{{ config.description }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-soft" type="button" (click)="loadItems()">Refresh</button>
+    <button
+      *ngIf="canCreate"
+      class="btn btn-brand"
+      type="button"
+      (click)="startCreate()"
+    >
+      New
+    </button>
+  </div>
+</div>
+
+<div class="page-grid" [class.single]="!showForm">
+  <section class="card-shell fade-up">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+      <div>
+        <h5 class="mb-1">Records</h5>
+        <div class="form-hint">{{ filteredItems.length }} records</div>
+      </div>
+      <input
+        class="form-control"
+        style="max-width: 260px;"
+        placeholder="Search records"
+        [(ngModel)]="filterTerm"
+        (input)="applyFilter()"
+      />
+    </div>
+
+    <div *ngIf="loading" class="empty-state">Loading data...</div>
+    <div *ngIf="!loading && filteredItems.length === 0" class="empty-state">
+      {{ config.emptyState || 'No records yet.' }}
+    </div>
+
+    <div *ngIf="!loading && filteredItems.length > 0" class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th *ngFor="let col of config.columns">{{ col.label }}</th>
+            <th *ngIf="canUpdate || canDelete" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let item of filteredItems"
+            [class.selected]="selected?.[config.idField] === item[config.idField]"
+            (click)="selectItem(item)"
+          >
+            <td *ngFor="let col of config.columns">{{ formatValue(item[col.key]) }}</td>
+            <td *ngIf="canUpdate || canDelete" class="text-end">
+              <button
+                *ngIf="canUpdate"
+                class="btn btn-sm btn-soft"
+                type="button"
+                (click)="editItem(item); $event.stopPropagation()"
+              >
+                Edit
+              </button>
+              <button
+                *ngIf="canDelete"
+                class="btn btn-sm btn-outline-danger ms-2"
+                type="button"
+                (click)="deleteItem(item); $event.stopPropagation()"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-warning mt-3">
+      {{ errorMessage }}
+    </div>
+  </section>
+
+  <section *ngIf="showForm" class="card-shell fade-up">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <h5 class="mb-1">
+          {{ mode === 'create' ? 'Create new' : 'Update' }} {{ config.title }}
+        </h5>
+        <div class="form-hint">
+          {{ mode === 'create' ? 'Fill in the required details.' : 'Edit the selected record.' }}
+        </div>
+      </div>
+      <span *ngIf="mode === 'edit'" class="tag">Edit</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="stagger">
+      <div class="row g-3">
+        <div class="col-12" *ngFor="let field of activeFields">
+          <label class="form-label">{{ field.label }}</label>
+          <ng-container [ngSwitch]="field.type">
+            <input
+              *ngSwitchCase="'text'"
+              class="form-control"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+            />
+            <input
+              *ngSwitchCase="'email'"
+              class="form-control"
+              type="email"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+            />
+            <input
+              *ngSwitchCase="'tel'"
+              class="form-control"
+              type="tel"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+            />
+            <input
+              *ngSwitchCase="'number'"
+              class="form-control"
+              type="number"
+              [attr.min]="field.min"
+              [attr.max]="field.max"
+              [attr.step]="field.step || 1"
+              [formControlName]="field.key"
+            />
+            <input
+              *ngSwitchCase="'date'"
+              class="form-control"
+              type="date"
+              [formControlName]="field.key"
+            />
+            <input
+              *ngSwitchCase="'datetime'"
+              class="form-control"
+              type="datetime-local"
+              [formControlName]="field.key"
+            />
+            <textarea
+              *ngSwitchCase="'textarea'"
+              class="form-control"
+              rows="3"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+            ></textarea>
+            <select
+              *ngSwitchCase="'select'"
+              class="form-select"
+              [formControlName]="field.key"
+            >
+              <option value="">Select option</option>
+              <option *ngFor="let opt of getOptions(field)" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+          </ng-container>
+          <div *ngIf="field.hint" class="form-hint">{{ field.hint }}</div>
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <button class="btn btn-brand" type="submit" [disabled]="form.invalid || saving">
+          {{ mode === 'create' ? 'Create' : 'Save changes' }}
+        </button>
+        <button class="btn btn-soft" type="button" (click)="resetForm()">Reset</button>
+        <button *ngIf="mode === 'edit'" class="btn btn-link" type="button" (click)="cancelEdit()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
