@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: "School Monitoring"
+    orgId: 1
+    folder: "School"
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
