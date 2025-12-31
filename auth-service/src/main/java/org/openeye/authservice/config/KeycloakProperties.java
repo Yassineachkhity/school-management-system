@@ -14,4 +14,6 @@ public class KeycloakProperties {
     private String adminUsername;
     private String adminPassword;
     private String adminRealm = "master";
+    private String adminClientId = "admin-cli";
+    private String adminClientSecret;
 }

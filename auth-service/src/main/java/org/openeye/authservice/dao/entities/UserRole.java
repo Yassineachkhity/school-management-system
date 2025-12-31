@@ -22,16 +22,16 @@ import lombok.ToString;
 @Entity
 @Table(
         name = "user_roles",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "roleId"})
 )
 @IdClass(UserRoleId.class)
 public class UserRole {
 
     @Id
-    @Column(name = "user_id", nullable = false, length = 36)
+    @Column(name = "userId", nullable = false, length = 36)
     private String userId;
 
     @Id
-    @Column(name = "role_id", nullable = false, length = 36)
+    @Column(name = "roleId", nullable = false, length = 36)
     private String roleId;
 }

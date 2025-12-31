@@ -1,9 +1,11 @@
-.page-subtitle {
-  margin-bottom: 18px;
+.login-shell--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
-code {
-  background: rgba(15, 118, 110, 0.1);
-  padding: 2px 6px;
-  border-radius: 6px;
+.login-shell--center .login-panel {
+  max-width: 520px;
+  width: min(90vw, 520px);
 }

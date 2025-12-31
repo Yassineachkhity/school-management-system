@@ -35,7 +35,7 @@
         <div class="user-chip" *ngIf="user$ | async as user">
           <div>
             <div><strong>{{ user.fullName || user.email || user.username || 'User' }}</strong></div>
-            <div class="text-muted">{{ user.roles.join(', ') }}</div>
+            <div class="text-muted" *ngIf="formatVisibleRoles(user) as roles">{{ roles }}</div>
           </div>
         </div>
         <button class="btn btn-brand" type="button" (click)="logout()">Logout</button>

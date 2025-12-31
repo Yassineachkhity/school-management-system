@@ -21,6 +21,12 @@ interface NavSection {
 })
 export class ShellComponent {
   readonly user$: Observable<AuthUser | null>;
+  private readonly hiddenRoles = new Set([
+    'ADMIN',
+    'DEFAULT-ROLES-SCHOOL',
+    'OFFLINE_ACCESS',
+    'UMA_AUTHORIZATION'
+  ]);
 
   readonly sections: NavSection[] = [
     {
@@ -64,5 +70,24 @@ export class ShellComponent {
 
   async logout(): Promise<void> {
     await this.auth.logout();
+  }
+
+  formatVisibleRoles(user: AuthUser | null): string {
+    if (!user?.roles?.length) {
+      return '';
+    }
+    const seen = new Set<string>();
+    const visible: string[] = [];
+    for (const role of user.roles) {
+      const normalized = role.toUpperCase();
+      if (this.hiddenRoles.has(normalized)) {
+        continue;
+      }
+      if (!seen.has(normalized)) {
+        seen.add(normalized);
+        visible.push(normalized);
+      }
+    }
+    return visible.join(', ');
   }
 }

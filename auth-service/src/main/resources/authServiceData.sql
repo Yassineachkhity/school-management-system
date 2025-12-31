@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     userId VARCHAR(36) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    passwordHash VARCHAR(255) NOT NULL,
     createdAt DATETIME,
     lastLoginAt DATETIME,
     PRIMARY KEY (userId),
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS roles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS user_roles (
-    user_id VARCHAR(36) NOT NULL,
-    role_id VARCHAR(36) NOT NULL,
-    PRIMARY KEY (user_id, role_id),
-    UNIQUE KEY uk_user_roles (user_id, role_id)
+    userId VARCHAR(36) NOT NULL,
+    roleId VARCHAR(36) NOT NULL,
+    PRIMARY KEY (userId, roleId),
+    UNIQUE KEY uk_user_roles (userId, roleId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO roles (roleId, label) VALUES
@@ -27,7 +27,7 @@ INSERT INTO roles (roleId, label) VALUES
     ('00000000-0000-0000-0000-000000000020', 'TEACHER'),
     ('00000000-0000-0000-0000-000000000030', 'STUDENT');
 
-INSERT INTO users (userId, email, password_hash, createdAt, lastLoginAt) VALUES
+INSERT INTO users (userId, email, passwordHash, createdAt, lastLoginAt) VALUES
     ('00000000-0000-0000-0000-000000000001', 'admin@school.com',
      '$2a$10$7EqJtq98hPqEX7fNZaFWoO.j6a8b8xY9n1pocOq94WQ8A8m5XnV2i',
      '2024-01-01 00:00:00', '2024-01-10 08:00:00'),
@@ -44,7 +44,7 @@ INSERT INTO users (userId, email, password_hash, createdAt, lastLoginAt) VALUES
      '$2a$10$7EqJtq98hPqEX7fNZaFWoO.j6a8b8xY9n1pocOq94WQ8A8m5XnV2i',
      '2024-01-08 09:00:00', NULL);
 
-INSERT INTO user_roles (user_id, role_id) VALUES
+INSERT INTO user_roles (userId, roleId) VALUES
     ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000010'),
     ('bbbbbbb1-bbbb-bbbb-bbbb-bbbbbbbbbbb1', '00000000-0000-0000-0000-000000000020'),
     ('bbbbbbb2-bbbb-bbbb-bbbb-bbbbbbbbbbb2', '00000000-0000-0000-0000-000000000020'),

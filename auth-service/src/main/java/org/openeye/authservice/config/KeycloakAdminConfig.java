@@ -13,14 +13,37 @@ public class KeycloakAdminConfig {
 
     @Bean
     public Keycloak keycloak(KeycloakProperties properties) {
-        return KeycloakBuilder.builder()
+        KeycloakBuilder builder = KeycloakBuilder.builder()
                 .serverUrl(properties.getServerUrl())
                 .realm(properties.getAdminRealm())
-                .clientId(properties.getClientId())
-                .clientSecret(properties.getClientSecret())
                 .grantType(OAuth2Constants.PASSWORD)
                 .username(properties.getAdminUsername())
-                .password(properties.getAdminPassword())
-                .build();
+                .password(properties.getAdminPassword());
+
+        String clientId = resolveAdminClientId(properties);
+        builder.clientId(clientId);
+
+        String clientSecret = resolveAdminClientSecret(properties);
+        if (clientSecret != null && !clientSecret.isBlank()) {
+            builder.clientSecret(clientSecret);
+        }
+
+        return builder.build();
+    }
+
+    private String resolveAdminClientId(KeycloakProperties properties) {
+        String adminClientId = properties.getAdminClientId();
+        if (adminClientId != null && !adminClientId.isBlank()) {
+            return adminClientId;
+        }
+        return properties.getClientId();
+    }
+
+    private String resolveAdminClientSecret(KeycloakProperties properties) {
+        String adminClientSecret = properties.getAdminClientSecret();
+        if (adminClientSecret != null && !adminClientSecret.isBlank()) {
+            return adminClientSecret;
+        }
+        return properties.getClientSecret();
     }
 }
